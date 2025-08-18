@@ -1,0 +1,6 @@
+#viewer{
+  width:512px; height:512px;
+  background-image:url("sprites/spritesheet1.png");
+  background-repeat:no-repeat;
+  background-position:0 0; /* bouge ça pour changer d’image */
+}
