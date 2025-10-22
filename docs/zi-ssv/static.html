@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #viewer{
+        width:300px; height:300px;
+        background-image:url("sprites/spritesheet3.png");
+        background-repeat:no-repeat;
+        background-position:0 0; /* bouge ça pour changer d’image */
+    }
+  </style>
+  
+</head>
+<body>
+  <div id="viewer"></div>
+
+
+  <script>
+    const cols = 10, cellW = 300, cellH = 300;
+    let index = 0;
+    function show(i){
+        index = i;
+        const x = -(i % cols) * cellW;
+        const y = -Math.floor(i / cols) * cellH;
+        viewer.style.backgroundPosition = `${x}px ${y}px`;
+    }
+    // ex: avancer toutes les 2s
+    setInterval(()=>show((index+1)%100), 2000);
+  </script>
+
+
+</body>
+</html>

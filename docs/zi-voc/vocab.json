@@ -1,0 +1,30 @@
+[
+  {
+    "en": "vindication",
+    "fr": "justification",
+    "stage_id": 1,
+    "nextReview": "2025-10-22",
+    "id": 1
+  },
+  {
+    "en": "seldom",
+    "fr": "rarement",
+    "stage_id": 1,
+    "nextReview": "2025-10-22",
+    "id": 2
+  },
+  {
+    "en": "thoughtless",
+    "fr": "irréfléchie",
+    "stage_id": 1,
+    "nextReview": "2025-10-22",
+    "id": 3
+  },
+  {
+    "en": "acquaintance",
+    "fr": "connaissance",
+    "stage_id": 1,
+    "nextReview": "2025-10-22",
+    "id": 4
+  }
+]

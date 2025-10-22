@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocab Trainer v0.1</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>📘 English Vocab Trainer</h1>
+    <p>Type your words, hit <b>Enter</b> or <b>Space</b> to save.</p>
+  </header>
+
+  <main>
+    <section id="add-word">
+      <input id="wordEN" type="text" placeholder="English word" />
+      <input id="wordFR" type="text" placeholder="French translation" />
+      <button id="addBtn">➕ Add</button>
+    </section>
+
+    <section id="review">
+      <h2>🔁 Words to review today</h2>
+      <ul id="reviewList"></ul>
+    </section>
+
+    <section id="all-words">
+      <h2>📚 All words</h2>
+      <ul id="allWordsList"></ul>
+    </section>
+  </main>
+
+  <footer>
+    <button id="exportBtn">💾 Export JSON</button>
+    <input id="importFile" type="file" accept=".json" hidden />
+    <button id="importBtn">📂 Import JSON</button>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
