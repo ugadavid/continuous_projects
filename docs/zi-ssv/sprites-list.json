@@ -10,5 +10,18 @@
   {
     "name": "spritesheet3",
     "label": "Licorne Magique"
+  },
+  {
+    "name": "spritesheet4",
+    "label": "handsome mixed colored"
+  },
+  {
+    "name": "spritesheet5",
+    "label": "Tattooed girl"
+  },
+  {
+    "name": "spritesheet6",
+    "label": "fitness"
   }
+
 ]

@@ -124,3 +124,87 @@ footer button {
     margin-bottom: 0.3rem;
   }
 }
+
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+nav button {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--blue);
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+nav button.active {
+  background: var(--green);
+}
+
+#reviewCard {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.5rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  min-height: 120px;
+}
+
+#reviewControls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+#reviewControls button {
+  padding: 0.8rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+#showBtn { background: var(--blue); color: white; }
+#okBtn { background: var(--green); color: white; }
+#koBtn { background: var(--red); color: white; }
+#nextBtn { background: #555; color: white; }
+
+.hidden { visibility: hidden; }
+
+
+.filterBar {
+  text-align: right;
+  margin-bottom: 0.5rem;
+}
+
+.state {
+  font-size: 0.8rem;
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  color: white;
+  margin-right: 0.5rem;
+}
+
+.state.new { background: #aaa; }
+.state.due { background: var(--red); }
+.state.ok { background: var(--green); }
+
+button.reset {
+  background: #888;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  margin-left: 0.3rem;
+}
+button.reset:hover {
+  background: var(--blue);
+}

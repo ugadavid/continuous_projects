@@ -3,38 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vocab Trainer v0.1</title>
+  <title>Vocab Trainer v0.2</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
     <h1>📘 English Vocab Trainer</h1>
-    <p>Type your words, hit <b>Enter</b> or <b>Space</b> to save.</p>
+    <nav>
+      <button id="editModeBtn" class="active">🛠️ Edit</button>
+      <button id="reviewModeBtn">🧠 Review</button>
+    </nav>
   </header>
 
-  <main>
-    <section id="add-word">
-      <input id="wordEN" type="text" placeholder="English word" />
-      <input id="wordFR" type="text" placeholder="French translation" />
-      <button id="addBtn">➕ Add</button>
-    </section>
+  <!-- Mode Édition -->
+  <main id="editMode">
+  <section id="add-word">
+    <input id="wordEN" type="text" placeholder="English word" />
+    <input id="wordFR" type="text" placeholder="French translation" />
+    <button id="addBtn">➕ Add</button>
+  </section>
 
-    <section id="review">
-      <h2>🔁 Words to review today</h2>
-      <ul id="reviewList"></ul>
-    </section>
+  <section id="review">
+    <h2>🔁 Words to review today</h2>
+    <ul id="reviewList"></ul>
+  </section>
 
-    <section id="all-words">
-      <h2>📚 All words</h2>
-      <ul id="allWordsList"></ul>
-    </section>
-  </main>
+  <section id="all-words">
+    <h2>📚 All words</h2>
+    <div class="filterBar">
+      <button id="toggleAllBtn">👁️ Show/Hide All Words</button>
+    </div>
+    <ul id="allWordsList" style="display:none;"></ul>
+  </section>
 
   <footer>
     <button id="exportBtn">💾 Export JSON</button>
     <input id="importFile" type="file" accept=".json" hidden />
     <button id="importBtn">📂 Import JSON</button>
   </footer>
+</main>
+
+
+  <!-- Mode Révision -->
+  <main id="reviewMode" style="display:none;">
+    <section id="review-session">
+      <h2>🧠 Review Session</h2>
+      <div id="reviewCard">
+        <p id="wordENReview">Press "Start" to begin</p>
+        <p id="wordFRReview" class="hidden"></p>
+      </div>
+      <div id="reviewControls">
+        <button id="showBtn">👁️ Show</button>
+        <button id="okBtn">✅ OK</button>
+        <button id="koBtn">❌ KO</button>
+        <button id="nextBtn">➡️ Next</button>
+      </div>
+      <button id="startReviewBtn">🚀 Start Review</button>
+    </section>
+  </main>
 
   <script src="app.js"></script>
 </body>

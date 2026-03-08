@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Layer Prototype</title>
+<style>
+  body {
+    background:#f2f2f2;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+    font-family:Lexend, sans-serif;
+  }
+  .video-container {
+    position:relative;
+    width:800px;
+    max-width:90%;
+    box-shadow:0 10px 20px rgba(0,0,0,0.2);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  video {
+    width:100%;
+    display:block;
+    border-radius:12px;
+  }
+  .overlay {
+    position:absolute;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:rgba(0,0,0,0.6);
+    color:#fff;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .4s;
+  }
+  .overlay.active {
+    opacity:1;
+    pointer-events:auto;
+  }
+  .quiz-box {
+    background:#fff;
+    color:#333;
+    padding:20px;
+    border-radius:10px;
+    text-align:center;
+    width:80%;
+    max-width:400px;
+  }
+  .quiz-box button {
+    margin:10px;
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    background:#4A90E2;
+    color:white;
+    cursor:pointer;
+    transition:background .3s;
+  }
+  .quiz-box button:hover { background:#357ABD; }
+</style>
+</head>
+<body>
+  <div class="video-container">
+    <video id="video" controls>
+      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+      Votre navigateur ne supporte pas la vidéo HTML5.
+    </video>
+    <div id="overlay" class="overlay">
+      <div class="quiz-box">
+        <h3>Question :</h3>
+        <p>Quelle est la couleur du perroquet ?</p>
+        <button data-correct="false">Rouge</button>
+        <button data-correct="true">Bleu</button>
+        <p id="feedback"></p>
+      </div>
+    </div>
+  </div>
+
+<script>
+const video = document.getElementById("video");
+const overlay = document.getElementById("overlay");
+const feedback = document.getElementById("feedback");
+
+let questionTriggered = false;
+
+// Affiche la question à 5 secondes
+video.addEventListener("timeupdate", () => {
+  if (!questionTriggered && video.currentTime >= 5) {
+    questionTriggered = true;
+    video.pause();
+    overlay.classList.add("active");
+  }
+});
+
+// Gestion des réponses
+overlay.addEventListener("click", e => {
+  if (e.target.tagName === "BUTTON") {
+    const correct = e.target.dataset.correct === "true";
+    feedback.textContent = correct ? "✅ Bonne réponse !" : "❌ Mauvaise réponse...";
+    setTimeout(() => {
+      overlay.classList.remove("active");
+      feedback.textContent = "";
+      video.play();
+    }, 1500);
+  }
+});
+</script>
+</body>
+</html>

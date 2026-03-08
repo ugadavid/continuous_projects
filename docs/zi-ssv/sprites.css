@@ -1,3 +1,64 @@
+.sprite-frame {
+  position: relative;
+  display: inline-block;
+  margin: 100px 10px 10px 100px;
+  padding: 10px; /* espace autour du sprite */
+}
+
+.sprite-frame::before {
+  content: "";
+  position: absolute;
+  top: 0; 
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid #dcdcdc;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.sprite-frame:hover::before {
+  border-color: #eeeeee;
+}
+
+/* Étiquette Zensprite™ */
+.sprite-frame::after {
+  content: attr(data-title);
+  position: absolute;
+  top: -14px;
+  left: 0;
+  right: 0;
+  padding: 3px 0;
+  background: #dcdcdc;
+  color: #333;
+  font-size: 16px;
+  text-align: center;
+  border-radius: 4px 4px 0 0;
+  pointer-events: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .sprite-viewer {
   background-repeat: no-repeat;
   overflow: hidden;
@@ -49,16 +110,41 @@
   margin-top: 10px;
   max-width: 320px;
   display: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+
 }
 
 .sprite-selector-grid.visible {
   display: grid;
+  opacity: 1;
+
 }
 
 .sprite-thumbnail {
+  position: relative;
   text-align: center;
   font-size: 12px;
   cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.sprite-thumbnail:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+}
+
+
+.sprite-thumbnail.selected::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 2px solid #4ac0ff;
+  border-radius: 6px;
+  pointer-events: none;
 }
 
 .sprite-extras {
@@ -73,6 +159,26 @@
   opacity: 1;
   pointer-events: all;
 }
+
+
+/* Cadre intérieur Zensprite */
+/*.sprite-viewer:not([data-mini="true"])::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  pointer-events: none;
+}*/
+
+
+
+
+
+
 
 .sprite-change-btn {
   background: #fff;

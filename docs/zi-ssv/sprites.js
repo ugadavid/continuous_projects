@@ -3,8 +3,21 @@ class SpriteViewer {
 
     
     this.hideTimer = null;
-    this.el = el;
+    // On crée un wrapper externe pour gérer le style sans toucher au viewer
+    this.frame = document.createElement("div");
+    this.frame.className = "sprite-frame";
+    
+
+
+    // On insère le viewer original dans le wrapper
+    el.parentNode.insertBefore(this.frame, el);
+    this.frame.appendChild(el);
+
+    this.el = el; // le viewer reste le viewer
+
     this.name = el.dataset.sprite;
+    this.frame.dataset.title = this.name;
+
     this.displaySize = parseInt(el.dataset.size) || 100;
     this.delaySeconds = parseFloat(el.dataset.delay) || 1;
     this.delay = this.delaySeconds * 1000;
@@ -105,11 +118,18 @@ class SpriteViewer {
           mini.className = "sprite-viewer";
           mini.dataset.sprite = item.name;
           mini.dataset.size = 64;
-          mini.dataset.delay = 0.3;
+          mini.dataset.delay = 1;
           mini.dataset.mode = "auto";
           mini.dataset.mini = "true";
 
           div.appendChild(mini);
+          const label = document.createElement("p");
+          label.textContent = item.label;
+          label.style.margin = "4px 0 0";
+          label.style.fontSize = "11px";
+          label.style.color = "#ddd";
+          div.appendChild(label);
+
           this.selectorContainer.appendChild(div);
 
           div.addEventListener("click", () => {
@@ -135,6 +155,20 @@ class SpriteViewer {
     this.el.style.backgroundImage = `url(sprites/${name}.png)`;
     this.name = name;
     this.index = 0;
+    this.frame.dataset.title = name;
+
+
+    // --- NEW: highlight du sprite actif ---
+    if (this.selectorContainer) {
+      this.selectorContainer.querySelectorAll(".sprite-thumbnail")
+        .forEach(div => div.classList.remove("selected"));
+
+      const activeThumb = this.selectorContainer.querySelector(
+        `[data-sprite="${name}"]`
+      )?.parentNode;
+
+      if (activeThumb) activeThumb.classList.add("selected");
+    }
   }
 
 

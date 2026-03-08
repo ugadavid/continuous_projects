@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WTS — Web Time Sheet</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.78);
+      --panel-2: rgba(30, 41, 59, 0.88);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --danger: #f87171;
+      --warning: #f59e0b;
+      --shadow: 0 20px 45px rgba(0,0,0,0.25);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%); color: var(--text); min-height: 100%; }
+    body { padding: 24px; }
+    h1, h2, h3 { margin: 0; }
+    button, input, select, textarea { font: inherit; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text);
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(56, 189, 248, 0.6);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
+    }
+
+    .app {
+      max-width: 1380px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-main {
+      padding: 26px;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(34, 197, 94, 0.10));
+    }
+
+    .hero-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 70ch;
+      line-height: 1.55;
+      margin-top: 8px;
+    }
+
+    .live-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--danger);
+      box-shadow: 0 0 16px rgba(248, 113, 113, 0.7);
+    }
+    .dot.running {
+      background: var(--accent-2);
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.8);
+    }
+
+    .hero-side {
+      padding: 22px;
+      display: grid;
+      gap: 10px;
+      align-content: center;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .stat {
+      padding: 18px;
+    }
+    .stat-label { color: var(--muted); font-size: 14px; }
+    .stat-value { font-size: 28px; font-weight: 800; margin-top: 6px; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: rgba(15, 23, 42, 0.75);
+      color: var(--muted);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    .tab.active {
+      color: white;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.24), rgba(34, 197, 94, 0.18));
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel { padding: 20px; }
+
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 14px;
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .section-title {
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+    .section-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: -6px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .timer-box {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid var(--line);
+    }
+
+    .timer-display {
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--muted);
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid var(--line);
+    }
+
+    .primary-btn, .secondary-btn, .danger-btn {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+    .primary-btn:hover, .secondary-btn:hover, .danger-btn:hover, .icon-btn:hover, .tab:hover { transform: translateY(-1px); }
+    .primary-btn {
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: white;
+    }
+    .secondary-btn {
+      background: rgba(30, 41, 59, 0.95);
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+    .danger-btn {
+      background: rgba(127, 29, 29, 0.75);
+      color: #fecaca;
+      border: 1px solid rgba(248, 113, 113, 0.2);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    tbody tr:hover { background: rgba(30, 41, 59, 0.36); }
+
+    .icon-btn {
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .hidden { display: none !important; }
+
+    .empty {
+      padding: 18px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px dashed var(--line);
+      color: var(--muted);
+    }
+
+    .list-box {
+      display: grid;
+      gap: 10px;
+      max-height: 420px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+    .admin-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.5);
+    }
+    .admin-item small { color: var(--muted); }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text);
+      border: 1px solid var(--line);
+      padding: 14px 18px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      z-index: 30;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: .25s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1120px) {
+      .hero, .layout, .stats { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      body { padding: 14px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .hero-main, .hero-side, .panel, .stat { padding: 16px; }
+      table { font-size: 13px; }
+      th:nth-child(4), td:nth-child(4), th:nth-child(5), td:nth-child(5) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="hero-title">
+          <div>
+            <div class="eyebrow">WTS</div>
+            <h1>Web Time Sheet</h1>
+            <p class="subtitle">
+              Un mini utilitaire local, simple et accueillant, pour suivre ton temps de travail : start / stop, ajout manuel, ajustements, projets, sous-projets et tâches.
+            </p>
+          </div>
+          <div class="live-status">
+            <span id="statusDot" class="dot"></span>
+            <span id="statusText">Aucun suivi en cours</span>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="pill">Stockage local : <strong>localStorage</strong></div>
+          <div class="pill">Version : <strong>MVP v1</strong></div>
+          <div class="pill">Mode : <strong>Single file HTML</strong></div>
+        </div>
+      </div>
+      <div class="card hero-side">
+        <div class="eyebrow">Aujourd'hui</div>
+        <h2 id="todayDate"></h2>
+        <div class="footer-note">
+          Le bouton principal enregistre l'heure de début et l'heure de fin, puis crée une ligne de temps. Tu peux ensuite corriger ou compléter tout ça manuellement.
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="card stat">
+        <div class="stat-label">Temps aujourd'hui</div>
+        <div class="stat-value" id="statToday">00:00</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-label">Cette semaine</div>
+        <div class="stat-value" id="statWeek">00:00</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-label">Entrées</div>
+        <div class="stat-value" id="statEntries">0</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-label">Projets actifs</div>
+        <div class="stat-value" id="statProjects">0</div>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <div class="toolbar">
+        <div class="tabs" id="tabs">
+          <button class="tab active" data-view="tracker">Suivi</button>
+          <button class="tab" data-view="entries">Entrées</button>
+          <button class="tab" data-view="manual">Ajout manuel</button>
+          <button class="tab" data-view="admin">Administration</button>
+        </div>
+        <div class="button-row">
+          <button class="secondary-btn" id="exportBtn">Exporter JSON</button>
+          <label class="secondary-btn" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;">
+            Importer JSON
+            <input id="importInput" type="file" accept="application/json" class="hidden" />
+          </label>
+          <button class="danger-btn" id="resetDemoBtn">Réinitialiser les données</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-tracker" class="layout view">
+      <div class="card panel">
+        <h2 class="section-title">Suivi en direct</h2>
+        <div class="section-subtitle">Choisis ce sur quoi tu travailles, puis clique sur start. Le stop créera automatiquement une entrée horodatée.</div>
+
+        <div class="timer-box">
+          <div class="grid-3">
+            <div>
+              <label for="trackerCategory">Catégorie</label>
+              <select id="trackerCategory"></select>
+            </div>
+            <div>
+              <label for="trackerProject">Projet</label>
+              <select id="trackerProject"></select>
+            </div>
+            <div>
+              <label for="trackerTask">Tâche</label>
+              <select id="trackerTask"></select>
+            </div>
+          </div>
+
+          <div>
+            <label for="trackerNote">Note libre</label>
+            <textarea id="trackerNote" rows="3" placeholder="Ex. : refacto menu Storyline, correction bugs, réunion Hubert..."></textarea>
+          </div>
+
+          <div>
+            <div class="stat-label">Temps en cours</div>
+            <div id="liveTimer" class="timer-display">00:00:00</div>
+          </div>
+
+          <div class="meta">
+            <div class="pill">Début : <span id="currentStart">—</span></div>
+            <div class="pill">Élément courant : <span id="currentTarget">—</span></div>
+          </div>
+
+          <div class="button-row">
+            <button id="toggleBtn" class="primary-btn">Start</button>
+            <button id="cancelRunBtn" class="secondary-btn">Annuler le run courant</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <h2 class="section-title">Dernières entrées</h2>
+        <div id="recentEntries"></div>
+      </div>
+    </section>
+
+    <section id="view-entries" class="view hidden">
+      <div class="card panel">
+        <h2 class="section-title">Toutes les entrées</h2>
+        <div class="section-subtitle">Tu peux filtrer, modifier les heures, ou supprimer une ligne si besoin.</div>
+
+        <div class="grid-3" style="margin-bottom:16px;">
+          <div>
+            <label for="filterText">Recherche</label>
+            <input id="filterText" type="text" placeholder="Projet, tâche, note..." />
+          </div>
+          <div>
+            <label for="filterDate">Date</label>
+            <input id="filterDate" type="date" />
+          </div>
+          <div>
+            <label for="filterCategory">Catégorie</label>
+            <select id="filterCategory"></select>
+          </div>
+        </div>
+
+        <div style="overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Durée</th>
+                <th>Catégorie</th>
+                <th>Projet / Tâche</th>
+                <th>Note</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="entriesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-manual" class="view hidden">
+      <div class="layout">
+        <div class="card panel">
+          <h2 class="section-title">Ajouter une entrée complète</h2>
+          <div class="section-subtitle">Pratique pour ce qui a été fait hors PC, ou quand tu as oublié le bouton start.</div>
+
+          <div class="grid-2">
+            <div>
+              <label for="manualDate">Date</label>
+              <input id="manualDate" type="date" />
+            </div>
+            <div>
+              <label for="manualCategory">Catégorie</label>
+              <select id="manualCategory"></select>
+            </div>
+            <div>
+              <label for="manualStart">Heure début</label>
+              <input id="manualStart" type="time" />
+            </div>
+            <div>
+              <label for="manualEnd">Heure fin</label>
+              <input id="manualEnd" type="time" />
+            </div>
+            <div>
+              <label for="manualProject">Projet</label>
+              <select id="manualProject"></select>
+            </div>
+            <div>
+              <label for="manualTask">Tâche</label>
+              <select id="manualTask"></select>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <label for="manualNote">Note</label>
+            <textarea id="manualNote" rows="4" placeholder="Ex. : travail hors ligne, notes papier, déplacement, cours, réunion extérieure..."></textarea>
+          </div>
+
+          <div class="button-row" style="margin-top:14px;">
+            <button id="addManualBtn" class="primary-btn">Ajouter l'entrée</button>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <h2 class="section-title">Idées d'usage</h2>
+          <div class="list-box">
+            <div class="admin-item"><div><strong>Travail local sur PC</strong><br><small>Usage normal avec start / stop.</small></div></div>
+            <div class="admin-item"><div><strong>Travail extérieur</strong><br><small>Ajout manuel après coup pour une réunion, une visite, une séance à la fac.</small></div></div>
+            <div class="admin-item"><div><strong>Correction d'oubli</strong><br><small>Modifier une entrée existante si l'heure de départ ou de fin est mauvaise.</small></div></div>
+            <div class="admin-item"><div><strong>Suivi fin</strong><br><small>Catégorie → projet → tâche pour retrouver facilement ce qui a été fait.</small></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-admin" class="view hidden">
+      <div class="layout">
+        <div class="card panel">
+          <h2 class="section-title">Ajouter des éléments</h2>
+          <div class="section-subtitle">Base légère : catégories, projets, tâches. Un projet peut appartenir à une catégorie, une tâche appartient à un projet.</div>
+
+          <div class="grid-3">
+            <div>
+              <label for="newCategoryName">Nouvelle catégorie</label>
+              <input id="newCategoryName" type="text" placeholder="Ex. : Mémoire, BE, Cas Projet, Admin perso..." />
+              <div class="button-row" style="margin-top:10px;"><button id="addCategoryBtn" class="secondary-btn">Ajouter catégorie</button></div>
+            </div>
+            <div>
+              <label for="newProjectCategory">Catégorie du projet</label>
+              <select id="newProjectCategory"></select>
+              <label for="newProjectName" style="margin-top:10px;display:block;">Nouveau projet</label>
+              <input id="newProjectName" type="text" placeholder="Ex. : Boost Hyper Engine" />
+              <div class="button-row" style="margin-top:10px;"><button id="addProjectBtn" class="secondary-btn">Ajouter projet</button></div>
+            </div>
+            <div>
+              <label for="newTaskProject">Projet de la tâche</label>
+              <select id="newTaskProject"></select>
+              <label for="newTaskName" style="margin-top:10px;display:block;">Nouvelle tâche</label>
+              <input id="newTaskName" type="text" placeholder="Ex. : Slides, code, lecture, visuels..." />
+              <div class="button-row" style="margin-top:10px;"><button id="addTaskBtn" class="secondary-btn">Ajouter tâche</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <h2 class="section-title">Référentiel actuel</h2>
+          <div class="grid-3">
+            <div>
+              <h3>Catégories</h3>
+              <div id="categoryList" class="list-box"></div>
+            </div>
+            <div>
+              <h3>Projets</h3>
+              <div id="projectList" class="list-box"></div>
+            </div>
+            <div>
+              <h3>Tâches</h3>
+              <div id="taskList" class="list-box"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'wts_data_v1';
+
+    const defaultData = {
+      categories: [
+        { id: crypto.randomUUID(), name: 'Général' },
+        { id: crypto.randomUUID(), name: 'Boost\'English' },
+        { id: crypto.randomUUID(), name: 'Mémoire / Recherche' }
+      ],
+      projects: [],
+      tasks: [],
+      entries: [],
+      activeRun: null
+    };
+
+    function seedProjectsAndTasks(base) {
+      if (base.projects.length || base.tasks.length) return base;
+      const general = base.categories.find(c => c.name === 'Général')?.id;
+      const be = base.categories.find(c => c.name === 'Boost\'English')?.id;
+      const memo = base.categories.find(c => c.name === 'Mémoire / Recherche')?.id;
+
+      const p1 = { id: crypto.randomUUID(), categoryId: general, name: 'Organisation perso' };
+      const p2 = { id: crypto.randomUUID(), categoryId: be, name: 'Boost Hyper Engine' };
+      const p3 = { id: crypto.randomUUID(), categoryId: memo, name: 'Lecture / rédaction' };
+      base.projects.push(p1, p2, p3);
+
+      base.tasks.push(
+        { id: crypto.randomUUID(), projectId: p1.id, name: 'Administration' },
+        { id: crypto.randomUUID(), projectId: p1.id, name: 'Email / messages' },
+        { id: crypto.randomUUID(), projectId: p2.id, name: 'Développement' },
+        { id: crypto.randomUUID(), projectId: p2.id, name: 'Debug / refacto' },
+        { id: crypto.randomUUID(), projectId: p3.id, name: 'Lecture' },
+        { id: crypto.randomUUID(), projectId: p3.id, name: 'Rédaction' },
+      );
+      return base;
+    }
+
+    let state = loadState();
+    let liveInterval = null;
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return seedProjectsAndTasks(structuredClone(defaultData));
+      try {
+        const parsed = JSON.parse(raw);
+        return seedProjectsAndTasks({ ...structuredClone(defaultData), ...parsed });
+      } catch (e) {
+        console.error(e);
+        return seedProjectsAndTasks(structuredClone(defaultData));
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      todayDate: $('todayDate'),
+      statusDot: $('statusDot'),
+      statusText: $('statusText'),
+      statToday: $('statToday'),
+      statWeek: $('statWeek'),
+      statEntries: $('statEntries'),
+      statProjects: $('statProjects'),
+      liveTimer: $('liveTimer'),
+      currentStart: $('currentStart'),
+      currentTarget: $('currentTarget'),
+      trackerCategory: $('trackerCategory'),
+      trackerProject: $('trackerProject'),
+      trackerTask: $('trackerTask'),
+      trackerNote: $('trackerNote'),
+      toggleBtn: $('toggleBtn'),
+      cancelRunBtn: $('cancelRunBtn'),
+      recentEntries: $('recentEntries'),
+      entriesTableBody: $('entriesTableBody'),
+      filterText: $('filterText'),
+      filterDate: $('filterDate'),
+      filterCategory: $('filterCategory'),
+      manualDate: $('manualDate'),
+      manualCategory: $('manualCategory'),
+      manualStart: $('manualStart'),
+      manualEnd: $('manualEnd'),
+      manualProject: $('manualProject'),
+      manualTask: $('manualTask'),
+      manualNote: $('manualNote'),
+      addManualBtn: $('addManualBtn'),
+      newCategoryName: $('newCategoryName'),
+      addCategoryBtn: $('addCategoryBtn'),
+      newProjectCategory: $('newProjectCategory'),
+      newProjectName: $('newProjectName'),
+      addProjectBtn: $('addProjectBtn'),
+      newTaskProject: $('newTaskProject'),
+      newTaskName: $('newTaskName'),
+      addTaskBtn: $('addTaskBtn'),
+      categoryList: $('categoryList'),
+      projectList: $('projectList'),
+      taskList: $('taskList'),
+      exportBtn: $('exportBtn'),
+      importInput: $('importInput'),
+      resetDemoBtn: $('resetDemoBtn'),
+      toast: $('toast')
+    };
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => els.toast.classList.remove('show'), 2200);
+    }
+
+    function formatDate(dt) {
+      return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(dt);
+    }
+
+    function formatDateTime(dt) {
+      return new Intl.DateTimeFormat('fr-FR', {
+        dateStyle: 'short', timeStyle: 'short'
+      }).format(dt);
+    }
+
+    function formatTime(dt) {
+      return new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(dt);
+    }
+
+    function formatDuration(ms) {
+      const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      if (hours > 0) return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+      return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+    }
+
+    function formatDurationShort(ms) {
+      const totalMinutes = Math.max(0, Math.round(ms / 60000));
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`;
+    }
+
+    function toDateInputValue(dt = new Date()) {
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const d = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getCategory(id) { return state.categories.find(x => x.id === id); }
+    function getProject(id) { return state.projects.find(x => x.id === id); }
+    function getTask(id) { return state.tasks.find(x => x.id === id); }
+
+    function populateSelect(selectEl, items, placeholder, selectedId) {
+      selectEl.innerHTML = '';
+      const first = document.createElement('option');
+      first.value = '';
+      first.textContent = placeholder;
+      selectEl.appendChild(first);
+      items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = item.name;
+        if (selectedId && selectedId === item.id) opt.selected = true;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    function refreshDependentSelects() {
+      populateSelect(els.trackerCategory, state.categories, 'Choisir une catégorie', state.activeRun?.categoryId || '');
+      populateSelect(els.manualCategory, state.categories, 'Choisir une catégorie');
+      populateSelect(els.filterCategory, state.categories, 'Toutes les catégories');
+      populateSelect(els.newProjectCategory, state.categories, 'Choisir une catégorie');
+
+      const trackerProjects = state.projects.filter(p => !els.trackerCategory.value || p.categoryId === els.trackerCategory.value);
+      populateSelect(els.trackerProject, trackerProjects, 'Choisir un projet', state.activeRun?.projectId || '');
+
+      const manualProjects = state.projects.filter(p => !els.manualCategory.value || p.categoryId === els.manualCategory.value);
+      populateSelect(els.manualProject, manualProjects, 'Choisir un projet');
+
+      populateSelect(els.newTaskProject, state.projects, 'Choisir un projet');
+
+      const trackerTasks = state.tasks.filter(t => !els.trackerProject.value || t.projectId === els.trackerProject.value);
+      populateSelect(els.trackerTask, trackerTasks, 'Choisir une tâche', state.activeRun?.taskId || '');
+
+      const manualTasks = state.tasks.filter(t => !els.manualProject.value || t.projectId === els.manualProject.value);
+      populateSelect(els.manualTask, manualTasks, 'Choisir une tâche');
+    }
+
+    function getEntryLabel(entry) {
+      const category = getCategory(entry.categoryId)?.name || '—';
+      const project = getProject(entry.projectId)?.name || 'Sans projet';
+      const task = getTask(entry.taskId)?.name || 'Sans tâche';
+      return `${category} · ${project} · ${task}`;
+    }
+
+    function renderStats() {
+      const now = new Date();
+      const todayStr = toDateInputValue(now);
+      const weekStart = new Date(now);
+      const day = weekStart.getDay() || 7;
+      weekStart.setHours(0,0,0,0);
+      weekStart.setDate(weekStart.getDate() - day + 1);
+
+      const todayMs = state.entries
+        .filter(e => toDateInputValue(new Date(e.startAt)) === todayStr)
+        .reduce((sum, e) => sum + (new Date(e.endAt) - new Date(e.startAt)), 0);
+
+      const weekMs = state.entries
+        .filter(e => new Date(e.startAt) >= weekStart)
+        .reduce((sum, e) => sum + (new Date(e.endAt) - new Date(e.startAt)), 0);
+
+      els.statToday.textContent = formatDurationShort(todayMs);
+      els.statWeek.textContent = formatDurationShort(weekMs);
+      els.statEntries.textContent = String(state.entries.length);
+      els.statProjects.textContent = String(state.projects.length);
+    }
+
+    function renderStatus() {
+      if (state.activeRun) {
+        els.statusDot.classList.add('running');
+        els.statusText.textContent = 'Suivi en cours';
+        els.toggleBtn.textContent = 'Stop';
+        els.toggleBtn.classList.remove('primary-btn');
+        els.toggleBtn.classList.add('danger-btn');
+
+        const start = new Date(state.activeRun.startAt);
+        els.currentStart.textContent = formatDateTime(start);
+        els.currentTarget.textContent = getEntryLabel(state.activeRun);
+        els.trackerNote.value = state.activeRun.note || '';
+
+        if (!liveInterval) {
+          liveInterval = setInterval(() => {
+            const ms = Date.now() - new Date(state.activeRun.startAt).getTime();
+            els.liveTimer.textContent = formatDuration(ms);
+          }, 1000);
+        }
+        const ms = Date.now() - new Date(state.activeRun.startAt).getTime();
+        els.liveTimer.textContent = formatDuration(ms);
+      } else {
+        els.statusDot.classList.remove('running');
+        els.statusText.textContent = 'Aucun suivi en cours';
+        els.toggleBtn.textContent = 'Start';
+        els.toggleBtn.classList.remove('danger-btn');
+        els.toggleBtn.classList.add('primary-btn');
+        els.currentStart.textContent = '—';
+        els.currentTarget.textContent = '—';
+        els.liveTimer.textContent = '00:00:00';
+        if (liveInterval) {
+          clearInterval(liveInterval);
+          liveInterval = null;
+        }
+      }
+    }
+
+    function renderRecentEntries() {
+      const entries = [...state.entries].sort((a,b) => new Date(b.startAt) - new Date(a.startAt)).slice(0, 6);
+      if (!entries.length) {
+        els.recentEntries.innerHTML = '<div class="empty">Aucune entrée pour l\'instant.</div>';
+        return;
+      }
+      els.recentEntries.innerHTML = entries.map(entry => {
+        const start = new Date(entry.startAt);
+        const end = new Date(entry.endAt);
+        const duration = end - start;
+        return `
+          <div class="admin-item">
+            <div>
+              <strong>${getEntryLabel(entry)}</strong><br>
+              <small>${formatDate(start)} — ${formatTime(start)} → ${formatTime(end)} · ${formatDurationShort(duration)}</small>
+              ${entry.note ? `<div style="margin-top:6px;color:var(--muted)">${escapeHtml(entry.note)}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str = '') {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function renderEntriesTable() {
+      const text = els.filterText.value.trim().toLowerCase();
+      const dateFilter = els.filterDate.value;
+      const categoryFilter = els.filterCategory.value;
+
+      const items = [...state.entries]
+        .sort((a,b) => new Date(b.startAt) - new Date(a.startAt))
+        .filter(entry => {
+          const start = new Date(entry.startAt);
+          const hay = [
+            getCategory(entry.categoryId)?.name,
+            getProject(entry.projectId)?.name,
+            getTask(entry.taskId)?.name,
+            entry.note
+          ].join(' ').toLowerCase();
+          const okText = !text || hay.includes(text);
+          const okDate = !dateFilter || toDateInputValue(start) === dateFilter;
+          const okCategory = !categoryFilter || entry.categoryId === categoryFilter;
+          return okText && okDate && okCategory;
+        });
+
+      if (!items.length) {
+        els.entriesTableBody.innerHTML = '<tr><td colspan="8"><div class="empty">Aucune entrée correspondant aux filtres.</div></td></tr>';
+        return;
+      }
+
+      els.entriesTableBody.innerHTML = items.map(entry => {
+        const start = new Date(entry.startAt);
+        const end = new Date(entry.endAt);
+        const duration = end - start;
+        return `
+          <tr>
+            <td>${formatDate(start)}</td>
+            <td>${formatTime(start)}</td>
+            <td>${formatTime(end)}</td>
+            <td>${formatDurationShort(duration)}</td>
+            <td>${escapeHtml(getCategory(entry.categoryId)?.name || '—')}</td>
+            <td>${escapeHtml((getProject(entry.projectId)?.name || 'Sans projet') + ' / ' + (getTask(entry.taskId)?.name || 'Sans tâche'))}</td>
+            <td>${entry.note ? escapeHtml(entry.note) : '—'}</td>
+            <td>
+              <button class="icon-btn" onclick="editEntry('${entry.id}')">Modifier</button>
+              <button class="icon-btn" onclick="deleteEntry('${entry.id}')">Suppr.</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderAdminLists() {
+      els.categoryList.innerHTML = state.categories.map(cat => `
+        <div class="admin-item">
+          <div><strong>${escapeHtml(cat.name)}</strong></div>
+          <button class="icon-btn" onclick="deleteCategory('${cat.id}')">Suppr.</button>
+        </div>
+      `).join('') || '<div class="empty">Aucune catégorie.</div>';
+
+      els.projectList.innerHTML = state.projects.map(project => `
+        <div class="admin-item">
+          <div>
+            <strong>${escapeHtml(project.name)}</strong><br>
+            <small>${escapeHtml(getCategory(project.categoryId)?.name || 'Sans catégorie')}</small>
+          </div>
+          <button class="icon-btn" onclick="deleteProject('${project.id}')">Suppr.</button>
+        </div>
+      `).join('') || '<div class="empty">Aucun projet.</div>';
+
+      els.taskList.innerHTML = state.tasks.map(task => `
+        <div class="admin-item">
+          <div>
+            <strong>${escapeHtml(task.name)}</strong><br>
+            <small>${escapeHtml(getProject(task.projectId)?.name || 'Sans projet')}</small>
+          </div>
+          <button class="icon-btn" onclick="deleteTask('${task.id}')">Suppr.</button>
+        </div>
+      `).join('') || '<div class="empty">Aucune tâche.</div>';
+    }
+
+    function renderAll() {
+      els.todayDate.textContent = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+      refreshDependentSelects();
+      renderStats();
+      renderStatus();
+      renderRecentEntries();
+      renderEntriesTable();
+      renderAdminLists();
+    }
+
+    function addEntry({ startAt, endAt, categoryId, projectId, taskId, note = '' }) {
+      const start = new Date(startAt);
+      const end = new Date(endAt);
+      if (isNaN(start) || isNaN(end) || end <= start) {
+        showToast('Heures invalides.');
+        return false;
+      }
+      state.entries.push({
+        id: crypto.randomUUID(),
+        startAt: start.toISOString(),
+        endAt: end.toISOString(),
+        categoryId: categoryId || '',
+        projectId: projectId || '',
+        taskId: taskId || '',
+        note: note.trim()
+      });
+      saveState();
+      renderAll();
+      return true;
+    }
+
+    function startRun() {
+      if (state.activeRun) return;
+      state.activeRun = {
+        id: crypto.randomUUID(),
+        startAt: new Date().toISOString(),
+        categoryId: els.trackerCategory.value,
+        projectId: els.trackerProject.value,
+        taskId: els.trackerTask.value,
+        note: els.trackerNote.value.trim()
+      };
+      saveState();
+      renderAll();
+      showToast('Suivi démarré.');
+    }
+
+    function stopRun() {
+      if (!state.activeRun) return;
+      state.activeRun.note = els.trackerNote.value.trim();
+      const ok = addEntry({
+        startAt: state.activeRun.startAt,
+        endAt: new Date().toISOString(),
+        categoryId: state.activeRun.categoryId,
+        projectId: state.activeRun.projectId,
+        taskId: state.activeRun.taskId,
+        note: state.activeRun.note || ''
+      });
+      if (!ok) return;
+      state.activeRun = null;
+      saveState();
+      renderAll();
+      showToast('Entrée enregistrée.');
+    }
+
+    function cancelActiveRun() {
+      if (!state.activeRun) return showToast('Aucun run en cours.');
+      if (!confirm('Annuler le run en cours sans créer d\'entrée ?')) return;
+      state.activeRun = null;
+      saveState();
+      renderAll();
+      showToast('Run annulé.');
+    }
+
+    function addCategory(name) {
+      const clean = name.trim();
+      if (!clean) return showToast('Nom de catégorie vide.');
+      state.categories.push({ id: crypto.randomUUID(), name: clean });
+      saveState();
+      renderAll();
+      showToast('Catégorie ajoutée.');
+    }
+
+    function addProject(name, categoryId) {
+      const clean = name.trim();
+      if (!clean) return showToast('Nom de projet vide.');
+      state.projects.push({ id: crypto.randomUUID(), categoryId, name: clean });
+      saveState();
+      renderAll();
+      showToast('Projet ajouté.');
+    }
+
+    function addTask(name, projectId) {
+      const clean = name.trim();
+      if (!clean) return showToast('Nom de tâche vide.');
+      if (!projectId) return showToast('Choisis un projet.');
+      state.tasks.push({ id: crypto.randomUUID(), projectId, name: clean });
+      saveState();
+      renderAll();
+      showToast('Tâche ajoutée.');
+    }
+
+    window.deleteEntry = function(id) {
+      if (!confirm('Supprimer cette entrée ?')) return;
+      state.entries = state.entries.filter(e => e.id !== id);
+      saveState();
+      renderAll();
+      showToast('Entrée supprimée.');
+    }
+
+    window.editEntry = function(id) {
+      const entry = state.entries.find(e => e.id === id);
+      if (!entry) return;
+      const start = new Date(entry.startAt);
+      const end = new Date(entry.endAt);
+      const newDate = prompt('Date (YYYY-MM-DD)', toDateInputValue(start));
+      if (!newDate) return;
+      const newStart = prompt('Heure début (HH:MM)', `${String(start.getHours()).padStart(2,'0')}:${String(start.getMinutes()).padStart(2,'0')}`);
+      if (!newStart) return;
+      const newEnd = prompt('Heure fin (HH:MM)', `${String(end.getHours()).padStart(2,'0')}:${String(end.getMinutes()).padStart(2,'0')}`);
+      if (!newEnd) return;
+      const newNote = prompt('Note', entry.note || '') ?? entry.note;
+
+      const [sy, sm, sd] = newDate.split('-').map(Number);
+      const [sh, smin] = newStart.split(':').map(Number);
+      const [eh, emin] = newEnd.split(':').map(Number);
+      const startDate = new Date(sy, sm - 1, sd, sh, smin);
+      const endDate = new Date(sy, sm - 1, sd, eh, emin);
+
+      if (isNaN(startDate) || isNaN(endDate) || endDate <= startDate) {
+        return showToast('Modification invalide.');
+      }
+
+      entry.startAt = startDate.toISOString();
+      entry.endAt = endDate.toISOString();
+      entry.note = newNote;
+      saveState();
+      renderAll();
+      showToast('Entrée modifiée.');
+    }
+
+    window.deleteCategory = function(id) {
+      const used = state.projects.some(p => p.categoryId === id) || state.entries.some(e => e.categoryId === id);
+      if (used) return showToast('Catégorie utilisée : suppression refusée.');
+      state.categories = state.categories.filter(c => c.id !== id);
+      saveState();
+      renderAll();
+      showToast('Catégorie supprimée.');
+    }
+
+    window.deleteProject = function(id) {
+      const used = state.tasks.some(t => t.projectId === id) || state.entries.some(e => e.projectId === id);
+      if (used) return showToast('Projet utilisé : suppression refusée.');
+      state.projects = state.projects.filter(p => p.id !== id);
+      saveState();
+      renderAll();
+      showToast('Projet supprimé.');
+    }
+
+    window.deleteTask = function(id) {
+      const used = state.entries.some(e => e.taskId === id);
+      if (used) return showToast('Tâche utilisée : suppression refusée.');
+      state.tasks = state.tasks.filter(t => t.id !== id);
+      saveState();
+      renderAll();
+      showToast('Tâche supprimée.');
+    }
+
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `wts-export-${toDateInputValue(new Date())}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJson(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          state = { ...structuredClone(defaultData), ...parsed };
+          saveState();
+          renderAll();
+          showToast('Import effectué.');
+        } catch (err) {
+          console.error(err);
+          showToast('Import impossible.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAll() {
+      if (!confirm('Tout effacer ? Cette action est irréversible.')) return;
+      state = seedProjectsAndTasks(structuredClone(defaultData));
+      saveState();
+      renderAll();
+      showToast('Données réinitialisées.');
+    }
+
+    function switchView(viewName) {
+      document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(`view-${viewName}`).classList.remove('hidden');
+      document.querySelector(`.tab[data-view="${viewName}"]`)?.classList.add('active');
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => switchView(tab.dataset.view));
+    });
+
+    els.trackerCategory.addEventListener('change', () => {
+      populateSelect(els.trackerProject, state.projects.filter(p => !els.trackerCategory.value || p.categoryId === els.trackerCategory.value), 'Choisir un projet');
+      populateSelect(els.trackerTask, [], 'Choisir une tâche');
+    });
+
+    els.trackerProject.addEventListener('change', () => {
+      populateSelect(els.trackerTask, state.tasks.filter(t => !els.trackerProject.value || t.projectId === els.trackerProject.value), 'Choisir une tâche');
+    });
+
+    els.manualCategory.addEventListener('change', () => {
+      populateSelect(els.manualProject, state.projects.filter(p => !els.manualCategory.value || p.categoryId === els.manualCategory.value), 'Choisir un projet');
+      populateSelect(els.manualTask, [], 'Choisir une tâche');
+    });
+
+    els.manualProject.addEventListener('change', () => {
+      populateSelect(els.manualTask, state.tasks.filter(t => !els.manualProject.value || t.projectId === els.manualProject.value), 'Choisir une tâche');
+    });
+
+    els.toggleBtn.addEventListener('click', () => state.activeRun ? stopRun() : startRun());
+    els.cancelRunBtn.addEventListener('click', cancelActiveRun);
+
+    els.addManualBtn.addEventListener('click', () => {
+      const date = els.manualDate.value;
+      const start = els.manualStart.value;
+      const end = els.manualEnd.value;
+      if (!date || !start || !end) return showToast('Date et heures requises.');
+      const [y, m, d] = date.split('-').map(Number);
+      const [sh, sm] = start.split(':').map(Number);
+      const [eh, em] = end.split(':').map(Number);
+      const startAt = new Date(y, m - 1, d, sh, sm);
+      const endAt = new Date(y, m - 1, d, eh, em);
+      if (addEntry({
+        startAt,
+        endAt,
+        categoryId: els.manualCategory.value,
+        projectId: els.manualProject.value,
+        taskId: els.manualTask.value,
+        note: els.manualNote.value
+      })) {
+        els.manualNote.value = '';
+        showToast('Entrée manuelle ajoutée.');
+      }
+    });
+
+    els.addCategoryBtn.addEventListener('click', () => {
+      addCategory(els.newCategoryName.value);
+      els.newCategoryName.value = '';
+    });
+
+    els.addProjectBtn.addEventListener('click', () => {
+      addProject(els.newProjectName.value, els.newProjectCategory.value);
+      els.newProjectName.value = '';
+    });
+
+    els.addTaskBtn.addEventListener('click', () => {
+      addTask(els.newTaskName.value, els.newTaskProject.value);
+      els.newTaskName.value = '';
+    });
+
+    els.exportBtn.addEventListener('click', exportJson);
+    els.importInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file) importJson(file);
+      e.target.value = '';
+    });
+    els.resetDemoBtn.addEventListener('click', resetAll);
+
+    [els.filterText, els.filterDate, els.filterCategory].forEach(el => el.addEventListener('input', renderEntriesTable));
+    els.filterCategory.addEventListener('change', renderEntriesTable);
+
+    function init() {
+      els.manualDate.value = toDateInputValue(new Date());
+      renderAll();
+    }
+
+    init();
+  </script>
+</body>
+</html>
